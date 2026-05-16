@@ -1,0 +1,71 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: #f3efe6;
+  --panel: #fffaf2;
+  --panel-strong: #f6efe1;
+  --line: rgba(37, 52, 49, 0.1);
+  --line-strong: rgba(37, 52, 49, 0.18);
+  --ink: #172221;
+  --muted: #5d6f6b;
+  --accent: #1d7a73;
+  --accent-soft: #e2f1ee;
+  --signal: #d86a42;
+  --signal-soft: #f8e3da;
+  --shadow: 0 24px 80px rgba(23, 34, 33, 0.08);
+  --font-sans: "Avenir Next", "Segoe UI Variable", "Helvetica Neue", sans-serif;
+  --font-serif: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-sans);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+::selection {
+  background: rgba(29, 122, 115, 0.18);
+}
+
+.eyebrow {
+  @apply inline-flex items-center rounded-full border px-3 py-1 text-[0.72rem] font-semibold uppercase tracking-[0.26em];
+  border-color: var(--line-strong);
+  color: var(--muted);
+  background: rgba(255, 255, 255, 0.66);
+}
+
+.panel {
+  @apply rounded-[2rem] border p-6;
+  border-color: var(--line);
+  background: rgba(255, 250, 242, 0.8);
+  box-shadow: var(--shadow);
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.font-display {
+  font-family: var(--font-serif);
+}
+
+.font-ui {
+  font-family: var(--font-sans);
+}
+
+.panel-strong {
+  background: var(--panel-strong);
+}

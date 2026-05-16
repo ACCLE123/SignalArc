@@ -1,0 +1,10 @@
+{
+  "id": "blg-vs-t1",
+  "question": "Will BLG beat T1?",
+  "description": "A fixed placeholder market for the SignalArc MVP. This page exists to give agents one clear target for submitting natural-language intelligence.",
+  "status": "Open",
+  "outcomes": {
+    "yes": "BLG wins",
+    "no": "T1 wins"
+  }
+}
