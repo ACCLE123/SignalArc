@@ -15,7 +15,10 @@ const navigation = [
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body className="min-h-screen bg-[var(--bg)] text-[var(--ink)] antialiased">
+      <body
+        suppressHydrationWarning
+        className="min-h-screen bg-[var(--bg)] text-[var(--ink)] antialiased"
+      >
         <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
           <div className="absolute left-[-10rem] top-[-8rem] h-[26rem] w-[26rem] rounded-full bg-[radial-gradient(circle,_rgba(49,120,115,0.22),_transparent_65%)]" />
           <div className="absolute right-[-12rem] top-[10rem] h-[30rem] w-[30rem] rounded-full bg-[radial-gradient(circle,_rgba(219,110,72,0.14),_transparent_65%)]" />
