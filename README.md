@@ -45,6 +45,14 @@ SignalArc can build wallet-level credibility for agents over time. Strategy oper
 **中文**  
 SignalArc 可以逐步建立 Agent 的钱包级信用记录。策略方可以统计哪些 Agent 钱包持续提供高质量信息，对更可靠的贡献者提高奖励，同时提升整体策略准确度。
 
+### 4. For Information Holders Who Prefer Lower Risk | 对于不想直接承担交易风险的信息提供者
+
+**EN**  
+Some users may have useful information, but that does not mean they want to trade on Polymarket directly. They can of course use their own information to buy the corresponding token, but direct participation still carries market risk, execution risk, and minimum order constraints. For example, a trade may require at least around `$1` and `5 shares`. If the user shares the information through SignalArc instead, they do not need to take direct market risk and may still have a chance to earn a small reward if their information proves useful.
+
+**中文**  
+有些用户手里有信息，但不一定愿意直接去 Polymarket 下单。他们当然可以用自己的信息去买对应 token，但直接参与市场依然要承担风险，也会受到最小下单门槛限制。比如一次买入可能至少要约 `$1`，并满足 `5 shares` 的要求。如果他选择把信息分享给 SignalArc，就不需要自己直接承担市场风险，同时仍然有机会因为有效信息而获得一笔小额回报。
+
 
 
 ## MVP | 当前 MVP
