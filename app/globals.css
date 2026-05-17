@@ -3,20 +3,24 @@
 @tailwind utilities;
 
 :root {
-  --bg: #f3efe6;
-  --panel: #fffaf2;
-  --panel-strong: #f6efe1;
-  --line: rgba(37, 52, 49, 0.1);
-  --line-strong: rgba(37, 52, 49, 0.18);
-  --ink: #172221;
-  --muted: #5d6f6b;
-  --accent: #1d7a73;
-  --accent-soft: #e2f1ee;
-  --signal: #d86a42;
-  --signal-soft: #f8e3da;
-  --shadow: 0 24px 80px rgba(23, 34, 33, 0.08);
-  --font-sans: "Avenir Next", "Segoe UI Variable", "Helvetica Neue", sans-serif;
-  --font-serif: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
+  --bg: #f5f7fb;
+  --surface: #ffffff;
+  --surface-strong: #f8fafc;
+  --card-soft: #f3f6fb;
+  --line: #e5e7eb;
+  --line-strong: #d1d5db;
+  --ink: #0f172a;
+  --muted: #64748b;
+  --accent: #2563eb;
+  --accent-strong: #1d4ed8;
+  --accent-soft: #dbeafe;
+  --yes: #1d4ed8;
+  --yes-soft: #eff6ff;
+  --no: #f97316;
+  --no-soft: #fff7ed;
+  --signal: #dc2626;
+  --shadow: 0 20px 48px rgba(15, 23, 42, 0.06);
+  --font-sans: "IBM Plex Sans", "Avenir Next", "SF Pro Display", "Helvetica Neue", sans-serif;
 }
 
 * {
@@ -28,6 +32,9 @@ html {
 }
 
 body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
   font-family: var(--font-sans);
 }
 
@@ -37,35 +44,142 @@ a {
 }
 
 ::selection {
-  background: rgba(29, 122, 115, 0.18);
+  background: rgba(37, 99, 235, 0.18);
 }
 
-.eyebrow {
-  @apply inline-flex items-center rounded-full border px-3 py-1 text-[0.72rem] font-semibold uppercase tracking-[0.26em];
-  border-color: var(--line-strong);
-  color: var(--muted);
-  background: rgba(255, 255, 255, 0.66);
-}
-
-.panel {
-  @apply rounded-[2rem] border p-6;
-  border-color: var(--line);
-  background: rgba(255, 250, 242, 0.8);
+.shell-card {
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.9);
   box-shadow: var(--shadow);
 }
 
-.muted {
+.panel {
+  border: 1px solid var(--line);
+  border-radius: 1.5rem;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.section-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
   color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
 }
 
-.font-display {
-  font-family: var(--font-serif);
+.status-chip {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--surface-strong);
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  padding: 0.42rem 0.7rem;
+  text-transform: uppercase;
 }
 
-.font-ui {
-  font-family: var(--font-sans);
+.status-chip-live {
+  border-color: rgba(37, 99, 235, 0.16);
+  background: var(--accent-soft);
+  color: var(--accent);
 }
 
-.panel-strong {
-  background: var(--panel-strong);
+.hero-copy {
+  max-width: 44rem;
+  font-size: clamp(2.6rem, 5vw, 4.7rem);
+  line-height: 0.94;
+  letter-spacing: -0.05em;
+  font-weight: 700;
+}
+
+.hero-text {
+  max-width: 42rem;
+  color: var(--muted);
+  font-size: 1.04rem;
+  line-height: 1.8;
+}
+
+.primary-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: var(--ink);
+  color: white;
+  font-size: 0.95rem;
+  font-weight: 600;
+  padding: 0.88rem 1.15rem;
+  transition: background 160ms ease;
+}
+
+.primary-button:hover {
+  background: var(--accent);
+}
+
+.secondary-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: white;
+  color: var(--ink);
+  font-size: 0.95rem;
+  font-weight: 600;
+  padding: 0.88rem 1.15rem;
+  transition: border-color 160ms ease, color 160ms ease, background 160ms ease;
+}
+
+.secondary-button:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--surface-strong);
+}
+
+.market-card {
+  border: 1px solid var(--line);
+  border-radius: 1.5rem;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  padding: 1.4rem;
+}
+
+.outcome-tile {
+  border: 1px solid var(--line);
+  border-radius: 1.25rem;
+  padding: 1rem 1rem 1.05rem;
+}
+
+.outcome-yes {
+  background: var(--yes-soft);
+}
+
+.outcome-no {
+  background: var(--no-soft);
+}
+
+.divider-grid {
+  background-image: linear-gradient(to right, rgba(148, 163, 184, 0.06) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+.top-nav-link {
+  border-radius: 999px;
+  color: var(--muted);
+  font-size: 0.92rem;
+  font-weight: 500;
+  padding: 0.65rem 0.9rem;
+  transition: background 160ms ease, color 160ms ease;
+}
+
+.top-nav-link:hover {
+  background: var(--surface-strong);
+  color: var(--ink);
 }
