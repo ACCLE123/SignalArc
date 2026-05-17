@@ -7,6 +7,7 @@ import { useMetaMask } from "@/components/metamask-context";
 
 const SKILL_PACKAGE_NAME = "signalarc-submission-agent";
 const ZIP_FILENAME = `${SKILL_PACKAGE_NAME}.zip`;
+const TASK_FILENAME = "current-task.yaml";
 
 const CRC32_TABLE = (() => {
   const table = new Uint32Array(256);
@@ -28,28 +29,6 @@ function escapeYamlString(value) {
   return String(value ?? "")
     .replace(/\\/g, "\\\\")
     .replace(/"/g, '\\"');
-}
-
-function buildTaskParamsYaml(taskParams) {
-  return `agent:
-  name: "${escapeYamlString(taskParams.agent.name)}"
-  wallet_address: "${escapeYamlString(taskParams.agent.wallet_address)}"
-
-market:
-  question: "${escapeYamlString(taskParams.market.question)}"
-  yes_outcome: "${escapeYamlString(taskParams.market.yes_outcome)}"
-  no_outcome: "${escapeYamlString(taskParams.market.no_outcome)}"
-  source_event: "${escapeYamlString(taskParams.market.source_event)}"
-  source_url: "${escapeYamlString(taskParams.market.source_url)}"
-
-submission:
-  method: "${escapeYamlString(taskParams.submission.method)}"
-  url: "${escapeYamlString(taskParams.submission.url)}"
-  content_type: "${escapeYamlString(taskParams.submission.content_type)}"
-
-notes:
-  user_notes: "${escapeYamlString(taskParams.notes.user_notes)}"
-`;
 }
 
 function dateToDos(date) {
@@ -170,6 +149,19 @@ function downloadZip(files) {
   window.URL.revokeObjectURL(url);
 }
 
+function downloadText(text, filename) {
+  const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
+  const url = window.URL.createObjectURL(blob);
+  const link = document.createElement("a");
+
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  window.URL.revokeObjectURL(url);
+}
+
 function FilePreview({ title, pathname, description, content }) {
   return (
     <section className="panel p-6">
@@ -197,91 +189,69 @@ export default function AgentSkillEditor({ market }) {
     setBaseUrl(window.location.origin);
   }, []);
 
-  const endpoint = baseUrl ? `${baseUrl}/api/messages` : "https://your-domain.com/api/messages";
+  const currentMarketUrl = baseUrl ? `${baseUrl}/api/market/current` : "https://your-domain.com/api/market/current";
+  const submissionUrl = baseUrl ? `${baseUrl}/api/messages` : "https://your-domain.com/api/messages";
 
-  const taskParams = useMemo(
-    () => ({
-      agent: {
-        name: agentName || "unnamed-agent",
-        wallet_address: isConnected ? address : "wallet-not-connected",
-      },
-      market: {
-        question: market.question,
-        yes_outcome: market.outcomes.yes,
-        no_outcome: market.outcomes.no,
-        source_event: market.competition || market.rawQuestion || market.question,
-        source_url: market.sourceUrl || "",
-      },
-      submission: {
-        method: "POST",
-        url: endpoint,
-        content_type: "application/json",
-      },
-      notes: {
-        user_notes: notes.trim() || "No extra notes.",
-      },
-    }),
-    [address, agentName, endpoint, isConnected, market, notes],
-  );
+  const taskYaml = useMemo(
+    () => `agent:
+  name: "${escapeYamlString(agentName || "unnamed-agent")}"
+  wallet_address: "${escapeYamlString(isConnected ? address : "wallet-not-connected")}"
 
-  const taskBrief = useMemo(
-    () => `# SignalArc Task Brief
+signal_arc:
+  base_url: "${escapeYamlString(baseUrl || "https://your-domain.com")}"
+  current_market_url: "${escapeYamlString(currentMarketUrl)}"
+  submission_url: "${escapeYamlString(submissionUrl)}"
 
-This is the current mission for the agent "${taskParams.agent.name}".
+runtime:
+  fetch_current_market_before_research: true
+  require_live_market_id: true
 
-Agent identity:
-- Agent name: ${taskParams.agent.name}
-- Wallet address: ${taskParams.agent.wallet_address}
+market_snapshot:
+  market_id: "${escapeYamlString(market.marketId || market.id)}"
+  question: "${escapeYamlString(market.question)}"
+  yes_outcome: "${escapeYamlString(market.outcomes.yes)}"
+  no_outcome: "${escapeYamlString(market.outcomes.no)}"
+  source_event: "${escapeYamlString(market.competition || market.rawQuestion || market.question)}"
+  source_url: "${escapeYamlString(market.sourceUrl || "")}"
+  updated_at: "${escapeYamlString(market.updatedAt || "")}"
 
-Active market:
-- Question: ${taskParams.market.question}
-- YES means: ${taskParams.market.yes_outcome}
-- NO means: ${taskParams.market.no_outcome}
-- Source event: ${taskParams.market.source_event}
-- Source URL: ${taskParams.market.source_url || "Not available"}
-
-Mission:
-1. Research the public information relevant to this market.
-2. Compare useful narratives across sources or language communities when helpful.
-3. Form one final directional conclusion: YES or NO.
-4. Produce one concise natural-language submission message.
-5. Submit exactly one final message to SignalArc.
-
-The final submission must include:
-- Direction: YES or NO
-- Main reasoning
-- Strongest evidence or observations
-- Confidence level
-- Main risk to the view
-
-User notes:
-${taskParams.notes.user_notes}
-
-Submission endpoint:
-- Method: ${taskParams.submission.method}
-- URL: ${taskParams.submission.url}
-- Content-Type: ${taskParams.submission.content_type}
+notes:
+  user_notes: "${escapeYamlString(notes.trim() || "No extra notes.")}"
 `,
-    [taskParams],
+    [address, agentName, baseUrl, currentMarketUrl, isConnected, market, notes, submissionUrl],
   );
-
-  const taskJson = useMemo(() => `${JSON.stringify(taskParams, null, 2)}\n`, [taskParams]);
-  const taskYaml = useMemo(() => buildTaskParamsYaml(taskParams), [taskParams]);
 
   const skillMd = useMemo(
-    () => `# SignalArc Submission Skill
+    () => `---
+name: signalarc-submission-agent
+description: Use when the user asks to research the current SignalArc market, decide YES/NO, and submit one final message. Fetch the live market from SignalArc before doing research.
+---
+
+# SignalArc Submission Skill
 
 Purpose:
-This is a reusable SignalArc skill. It does not contain one specific market. Instead, it defines the stable workflow for taking a task file, researching a market, and submitting one final message.
+This is a reusable SignalArc skill. It does not contain one fixed market. Instead, it defines the stable workflow for syncing the live SignalArc market, researching it, and submitting one final message.
 
 Stable workflow:
-1. Load the current task parameters from a JSON or YAML task file.
-2. Read the active market question and outcome meanings.
-3. Research only the market described in the task parameters.
-4. Compare public information and cross-language or cross-community signals when useful.
-5. Form one directional conclusion: YES or NO.
-6. Write one concise final submission message.
-7. Submit exactly one final message to SignalArc.
+1. Load \`current-task.yaml\`.
+2. Read \`agent.name\`, \`agent.wallet_address\`, and the SignalArc URLs.
+3. Call \`GET signal_arc.current_market_url\` before doing any research.
+4. Use the live market response as the source of truth, even if \`market_snapshot\` is stale.
+5. Research only the live market returned by SignalArc.
+6. Compare public information and cross-language or cross-community signals when useful.
+7. Form one directional conclusion: YES or NO.
+8. Write one concise final submission message.
+9. Submit exactly one final message to SignalArc.
+
+Live market contract:
+The current market endpoint returns:
+- \`market_id\`
+- \`question\`
+- \`yes_outcome\`
+- \`no_outcome\`
+- \`source_event\`
+- \`source_url\`
+- \`submission_url\`
 
 Required output structure:
 - Direction: YES or NO
@@ -291,14 +261,13 @@ Required output structure:
 - Main risk to the view
 
 Submission contract:
-- Read \`agent.name\` and \`agent.wallet_address\` from the task file.
-- Read \`submission.method\`, \`submission.url\`, and \`submission.content_type\` from the task file.
-- Send the final message in this shape:
+Send one POST request to \`submission_url\` with this JSON body:
 
 \`\`\`json
 {
-  "agent_name": "<agent.name>",
-  "wallet_address": "<agent.wallet_address>",
+  "market_id": "<live market_id from GET /api/market/current>",
+  "agent_name": "<agent.name from current-task.yaml>",
+  "wallet_address": "<agent.wallet_address from current-task.yaml>",
   "message": "<final natural-language submission message>"
 }
 \`\`\`
@@ -311,36 +280,36 @@ Do not submit multiple variants. Produce one final message and send it once afte
 
   const openaiYaml = useMemo(
     () => `name: signalarc-submission-agent
-description: Reusable SignalArc skill package for researching one assigned market and submitting one final message.
+description: Use when the user needs a reusable SignalArc agent that fetches the live market, researches it, and submits one final YES/NO message.
 model: gpt-5.5
 
 inputs:
   required_files:
     - SKILL.md
-    - task/task-params.yaml
+    - current-task.yaml
 
 workflow:
-  - Load the task parameters file.
-  - Follow the stable process defined in skill/SKILL.md.
-  - Produce one final message.
-  - Submit it once to the URL in submission.url.
+  - Load current-task.yaml.
+  - Call signal_arc.current_market_url before research.
+  - Follow the stable process defined in SKILL.md.
+  - Submit one final POST request to signal_arc.submission_url with market_id.
 
 artifacts:
   output_message: one final natural-language submission message
   api_submission: one POST request to SignalArc
+
+notes:
+  - Restart Codex after installing this skill package. Installed skills are not hot-loaded into the current session.
 `,
     [],
   );
 
-  const packageFiles = useMemo(
+  const skillPackageFiles = useMemo(
     () => [
       { path: `${SKILL_PACKAGE_NAME}/SKILL.md`, content: skillMd },
       { path: `${SKILL_PACKAGE_NAME}/agents/openai.yaml`, content: openaiYaml },
-      { path: `${SKILL_PACKAGE_NAME}/task/task-brief.md`, content: taskBrief },
-      { path: `${SKILL_PACKAGE_NAME}/task/task-params.json`, content: taskJson },
-      { path: `${SKILL_PACKAGE_NAME}/task/task-params.yaml`, content: taskYaml },
     ],
-    [openaiYaml, skillMd, taskBrief, taskJson, taskYaml],
+    [openaiYaml, skillMd],
   );
 
   return (
@@ -348,19 +317,23 @@ artifacts:
       <section className="panel px-6 py-8 sm:px-8">
         <div className="max-w-4xl space-y-5">
           <span className="status-chip status-chip-live">Step 3</span>
-          <h1 className="text-4xl font-semibold tracking-[-0.05em] sm:text-5xl">Generate a read-only agent package.</h1>
+          <h1 className="text-4xl font-semibold tracking-[-0.05em] sm:text-5xl">Export a reusable skill and a separate task file.</h1>
           <p className="text-base leading-8 text-[var(--muted)]">
-            Brief and skill are separated. The package contains one task layer for the current market and one reusable
-            skill layer for future SignalArc runs. Editing is disabled here; download the zip package directly.
+            The reusable skill package no longer carries one specific market task inside it. The live market is synced
+            at runtime through SignalArc APIs, and the task file only carries agent config plus a market snapshot.
           </p>
           <p className="text-sm leading-7 text-[var(--muted)]">
-            Extract this package into <code>~/.codex/skills/</code> to get the standard entrypoint:
+            Extract the skill zip into <code>~/.codex/skills/</code> so the standard entrypoint becomes
             {" "}
-            <code>~/.codex/skills/{SKILL_PACKAGE_NAME}/SKILL.md</code>
+            <code>~/.codex/skills/{SKILL_PACKAGE_NAME}/SKILL.md</code>. After installation, restart Codex because skills
+            are not hot-loaded into the current session.
           </p>
           <div className="flex flex-wrap gap-3">
-            <button type="button" onClick={() => downloadZip(packageFiles)} className="primary-button">
+            <button type="button" onClick={() => downloadZip(skillPackageFiles)} className="primary-button">
               Download {ZIP_FILENAME}
+            </button>
+            <button type="button" onClick={() => downloadText(taskYaml, TASK_FILENAME)} className="secondary-button">
+              Download {TASK_FILENAME}
             </button>
           </div>
         </div>
@@ -368,63 +341,50 @@ artifacts:
 
       <section className="grid gap-6 lg:grid-cols-2">
         <article className="market-card space-y-4">
-          <p className="section-label">Task variables</p>
+          <p className="section-label">Runtime sync</p>
           <div className="space-y-3 text-sm leading-7 text-[var(--muted)]">
             <p>
-              Agent: <span className="text-[var(--ink)]">{taskParams.agent.name}</span>
+              Current market API: <span className="break-all text-[var(--ink)]">{currentMarketUrl}</span>
             </p>
             <p>
-              Wallet: <span className="break-all text-[var(--ink)]">{taskParams.agent.wallet_address}</span>
+              Submission API: <span className="break-all text-[var(--ink)]">{submissionUrl}</span>
             </p>
             <p>
-              Market: <span className="text-[var(--ink)]">{taskParams.market.question}</span>
+              Live market id: <span className="text-[var(--ink)]">{market.marketId || market.id}</span>
             </p>
           </div>
         </article>
 
         <article className="market-card space-y-4">
-          <p className="section-label">Included files</p>
+          <p className="section-label">Skill package</p>
           <div className="space-y-2 text-sm leading-7 text-[var(--muted)]">
-            {packageFiles.map((file) => (
+            {skillPackageFiles.map((file) => (
               <p key={file.path}>{file.path}</p>
             ))}
+            <p>{TASK_FILENAME}</p>
           </div>
         </article>
       </section>
 
       <FilePreview
-        title="Task Brief"
-        pathname={`${SKILL_PACKAGE_NAME}/task/task-brief.md`}
-        description="A human-readable mission file for this exact market."
-        content={taskBrief}
-      />
-
-      <FilePreview
-        title="Task Params JSON"
-        pathname={`${SKILL_PACKAGE_NAME}/task/task-params.json`}
-        description="Machine-readable task variables in JSON."
-        content={taskJson}
-      />
-
-      <FilePreview
-        title="Task Params YAML"
-        pathname={`${SKILL_PACKAGE_NAME}/task/task-params.yaml`}
-        description="Machine-readable task variables in YAML."
-        content={taskYaml}
-      />
-
-      <FilePreview
-        title="Reusable SKILL.md"
+        title="SKILL.md"
         pathname={`${SKILL_PACKAGE_NAME}/SKILL.md`}
-        description="The stable SignalArc workflow, placed at the skill package root for direct recognition."
+        description="Reusable SignalArc skill with YAML frontmatter and live market sync instructions."
         content={skillMd}
       />
 
       <FilePreview
         title="OpenAI Agent Config"
         pathname={`${SKILL_PACKAGE_NAME}/agents/openai.yaml`}
-        description="A reusable agent package entry that points to the skill and task files."
+        description="Reusable agent config that points to SKILL.md and the external current-task.yaml."
         content={openaiYaml}
+      />
+
+      <FilePreview
+        title="Current Task YAML"
+        pathname={TASK_FILENAME}
+        description="External task/runtime file. Replace this file when agent identity or deployment base URL changes."
+        content={taskYaml}
       />
 
       <div className="flex flex-wrap gap-3">

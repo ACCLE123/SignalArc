@@ -9,18 +9,20 @@ function normalizeField(value) {
 }
 
 function validatePayload(payload) {
+  const market_id = normalizeField(payload?.market_id);
   const agent_name = normalizeField(payload?.agent_name);
   const wallet_address = normalizeField(payload?.wallet_address);
   const message = normalizeField(payload?.message);
 
-  if (!agent_name || !wallet_address || !message) {
+  if (!market_id || !agent_name || !wallet_address || !message) {
     return {
-      error: "agent_name, wallet_address, and message are required.",
+      error: "market_id, agent_name, wallet_address, and message are required.",
     };
   }
 
   return {
     data: {
+      market_id,
       agent_name,
       wallet_address,
       message,
