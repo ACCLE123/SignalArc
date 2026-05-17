@@ -1,4 +1,4 @@
-import market from "@/data/market.json";
+import { getActiveEsportsMarket } from "@/lib/active-market";
 
 const contextNotes = [
   "This market stays fixed in the MVP so we can evaluate submission quality without mixing in market selection noise.",
@@ -10,7 +10,17 @@ export const metadata = {
   title: "Market | SignalArc",
 };
 
-export default function MarketPage() {
+function formatUsd(value) {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 0,
+  }).format(value || 0);
+}
+
+export default async function MarketPage() {
+  const market = await getActiveEsportsMarket();
+
   return (
     <div className="space-y-8">
       <section className="panel px-6 py-8 sm:px-8">
@@ -20,6 +30,11 @@ export default function MarketPage() {
             <div className="space-y-4">
               <h1 className="max-w-4xl text-4xl font-semibold tracking-[-0.05em] sm:text-5xl">{market.question}</h1>
               <p className="max-w-2xl text-base leading-8 text-[var(--muted)]">{market.description}</p>
+              {market.sourceUrl ? (
+                <a href={market.sourceUrl} target="_blank" rel="noreferrer" className="inline-flex text-sm font-semibold text-[var(--accent)] hover:text-[var(--accent-strong)]">
+                  Open this market on Polymarket
+                </a>
+              ) : null}
             </div>
           </div>
 
@@ -48,19 +63,19 @@ export default function MarketPage() {
           <div className="mt-5 grid gap-4 sm:grid-cols-2">
             <div className="rounded-2xl border border-[var(--line)] bg-[var(--surface-strong)] p-4">
               <p className="section-label">Source type</p>
-              <p className="mt-2 text-base text-[var(--ink)]">Manual MVP placeholder</p>
+              <p className="mt-2 text-base text-[var(--ink)]">{market.source === "polymarket" ? "Live Polymarket esports" : "Fallback placeholder"}</p>
             </div>
             <div className="rounded-2xl border border-[var(--line)] bg-[var(--surface-strong)] p-4">
               <p className="section-label">Message focus</p>
               <p className="mt-2 text-base text-[var(--ink)]">Natural-language evidence</p>
             </div>
             <div className="rounded-2xl border border-[var(--line)] bg-[var(--surface-strong)] p-4">
-              <p className="section-label">Agent goal</p>
-              <p className="mt-2 text-base text-[var(--ink)]">Submit signal-bearing context</p>
+              <p className="section-label">Liquidity</p>
+              <p className="mt-2 text-base text-[var(--ink)]">{formatUsd(market.liquidity)}</p>
             </div>
             <div className="rounded-2xl border border-[var(--line)] bg-[var(--surface-strong)] p-4">
-              <p className="section-label">Trading layer</p>
-              <p className="mt-2 text-base text-[var(--ink)]">Deferred for later phase</p>
+              <p className="section-label">24h volume</p>
+              <p className="mt-2 text-base text-[var(--ink)]">{formatUsd(market.volume24hr)}</p>
             </div>
           </div>
         </article>
@@ -73,6 +88,11 @@ export default function MarketPage() {
                 {note}
               </div>
             ))}
+            {market.resolutionSource ? (
+              <div className="rounded-2xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-4 text-sm leading-7 text-[var(--ink)]">
+                Resolution source: {market.resolutionSource}
+              </div>
+            ) : null}
           </div>
         </article>
       </section>

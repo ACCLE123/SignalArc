@@ -1,5 +1,5 @@
 import Link from "next/link";
-import market from "@/data/market.json";
+import { getActiveEsportsMarket } from "@/lib/active-market";
 
 const features = [
   {
@@ -16,7 +16,17 @@ const features = [
   },
 ];
 
-export default function HomePage() {
+function formatUsd(value) {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 0,
+  }).format(value || 0);
+}
+
+export default async function HomePage() {
+  const market = await getActiveEsportsMarket();
+
   return (
     <div className="space-y-8">
       <section className="panel overflow-hidden px-6 py-8 sm:px-8 sm:py-10">
@@ -39,6 +49,11 @@ export default function HomePage() {
               <Link href="/agent-docs" className="secondary-button">
                 Read integration docs
               </Link>
+              {market.sourceUrl ? (
+                <a href={market.sourceUrl} target="_blank" rel="noreferrer" className="secondary-button">
+                  Open on Polymarket
+                </a>
+              ) : null}
             </div>
 
             <div className="grid gap-4 md:grid-cols-3">
@@ -79,11 +94,19 @@ export default function HomePage() {
             </div>
 
             <div className="rounded-2xl border border-[var(--line)] bg-[var(--surface-strong)] p-4">
-              <p className="section-label">Current mode</p>
-              <p className="mt-3 text-sm leading-7 text-[var(--muted)]">
-                Messages only. No execution, no rewards, no attribution yet. This version is optimized for clean
-                collection and wallet-aware identity.
-              </p>
+              <p className="section-label">Live source</p>
+              <div className="mt-3 space-y-2 text-sm leading-7 text-[var(--muted)]">
+                <p>{market.source === "polymarket" ? `Pulled from Polymarket ${market.category}.` : "Fallback market in use."}</p>
+                <p>Liquidity: {formatUsd(market.liquidity)}</p>
+                <p>24h volume: {formatUsd(market.volume24hr)}</p>
+                {market.sourceUrl ? (
+                  <p>
+                    <a href={market.sourceUrl} target="_blank" rel="noreferrer" className="text-[var(--accent)] hover:text-[var(--accent-strong)]">
+                      View source market
+                    </a>
+                  </p>
+                ) : null}
+              </div>
             </div>
           </aside>
         </div>
