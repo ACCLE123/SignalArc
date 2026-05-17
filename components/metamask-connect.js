@@ -11,7 +11,8 @@ function shortenAddress(address) {
 }
 
 export default function MetaMaskConnect() {
-  const { address, connect, error, hasMetaMask, isConnected, isOnArc, status } = useMetaMask();
+  const { address, connect, error, hasMetaMask, isBalanceLoading, isConnected, isOnArc, status, usdcBalance } =
+    useMetaMask();
 
   return (
     <div className="flex flex-col items-stretch gap-2 sm:items-end">
@@ -25,7 +26,10 @@ export default function MetaMaskConnect() {
 
       <div className="text-right text-xs text-[var(--muted)]">
         {isConnected ? (
-          <p>{shortenAddress(address)}</p>
+          <>
+            <p>{shortenAddress(address)}</p>
+            <p>{isOnArc ? (isBalanceLoading ? "USDC balance loading..." : `${usdcBalance || "0"} USDC`) : "USDC unavailable"}</p>
+          </>
         ) : hasMetaMask ? (
           <p>MetaMask detected</p>
         ) : (

@@ -11,7 +11,8 @@ function shortenAddress(address) {
 }
 
 export default function MetaMaskStatusCard() {
-  const { address, connect, error, hasMetaMask, isConnected, isOnArc, status } = useMetaMask();
+  const { address, connect, error, hasMetaMask, isBalanceLoading, isConnected, isOnArc, status, usdcBalance } =
+    useMetaMask();
 
   return (
     <article className="market-card space-y-4">
@@ -37,6 +38,12 @@ export default function MetaMaskStatusCard() {
         <div className="rounded-2xl border border-[var(--line)] bg-[var(--card-soft)] px-4 py-3">
           <p className="section-label">Network</p>
           <p className="mt-2 text-[var(--ink)]">{isConnected ? (isOnArc ? "Arc Testnet" : "Wrong network") : "Connect first"}</p>
+        </div>
+        <div className="rounded-2xl border border-[var(--line)] bg-[var(--card-soft)] px-4 py-3">
+          <p className="section-label">USDC balance</p>
+          <p className="mt-2 text-[var(--ink)]">
+            {isConnected ? (isOnArc ? (isBalanceLoading ? "Loading..." : `${usdcBalance || "0"} USDC`) : "Switch to Arc Testnet") : "Connect first"}
+          </p>
         </div>
       </div>
 

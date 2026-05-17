@@ -14,7 +14,32 @@ const ARC_TESTNET = {
   blockExplorerUrls: ["https://testnet.arcscan.app"],
 };
 
+const ARC_USDC_ERC20 = {
+  address: "0x3600000000000000000000000000000000000000",
+  decimals: 6,
+};
+
 const MetaMaskContext = createContext(null);
+
+function encodeBalanceOf(address) {
+  return `0x70a08231000000000000000000000000${address.toLowerCase().replace(/^0x/, "")}`;
+}
+
+function formatTokenBalance(value, decimals) {
+  const raw = typeof value === "bigint" ? value : BigInt(value || 0);
+  const base = 10n ** BigInt(decimals);
+  const whole = raw / base;
+  const fraction = raw % base;
+
+  if (fraction === 0n) {
+    return whole.toString();
+  }
+
+  const padded = fraction.toString().padStart(decimals, "0").replace(/0+$/, "");
+  const trimmed = padded.slice(0, 4);
+
+  return trimmed ? `${whole.toString()}.${trimmed}` : whole.toString();
+}
 
 function isMetaMaskProvider(provider) {
   return Boolean(
@@ -86,6 +111,8 @@ export function MetaMaskProvider({ children }) {
   const [providerDetail, setProviderDetail] = useState(null);
   const [address, setAddress] = useState("");
   const [chainId, setChainId] = useState("");
+  const [usdcBalance, setUsdcBalance] = useState("");
+  const [isBalanceLoading, setIsBalanceLoading] = useState(false);
   const [status, setStatus] = useState("idle");
   const [error, setError] = useState("");
 
@@ -161,6 +188,55 @@ export function MetaMaskProvider({ children }) {
     };
   }, [provider]);
 
+  useEffect(() => {
+    if (!provider || !address || !isOnArc) {
+      setUsdcBalance("");
+      setIsBalanceLoading(false);
+      return undefined;
+    }
+
+    let cancelled = false;
+
+    async function syncUsdcBalance() {
+      try {
+        setIsBalanceLoading(true);
+
+        const balanceHex = await provider.request({
+          method: "eth_call",
+          params: [
+            {
+              to: ARC_USDC_ERC20.address,
+              data: encodeBalanceOf(address),
+            },
+            "latest",
+          ],
+        });
+
+        if (cancelled) {
+          return;
+        }
+
+        const parsed = BigInt(balanceHex || "0x0");
+        setUsdcBalance(formatTokenBalance(parsed, ARC_USDC_ERC20.decimals));
+      } catch (balanceError) {
+        if (!cancelled) {
+          setUsdcBalance("");
+          setError(formatWalletError(balanceError, "Failed to read Arc USDC balance."));
+        }
+      } finally {
+        if (!cancelled) {
+          setIsBalanceLoading(false);
+        }
+      }
+    }
+
+    syncUsdcBalance();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [address, isOnArc, provider]);
+
   const connect = useCallback(async () => {
     if (!provider) {
       window.open("https://metamask.io/download/", "_blank", "noopener,noreferrer");
@@ -191,11 +267,13 @@ export function MetaMaskProvider({ children }) {
       connect,
       error,
       hasMetaMask,
+      isBalanceLoading,
       isConnected,
       isOnArc,
       status,
+      usdcBalance,
     }),
-    [address, chainId, connect, error, hasMetaMask, isConnected, isOnArc, status],
+    [address, chainId, connect, error, hasMetaMask, isBalanceLoading, isConnected, isOnArc, status, usdcBalance],
   );
 
   return <MetaMaskContext.Provider value={value}>{children}</MetaMaskContext.Provider>;
