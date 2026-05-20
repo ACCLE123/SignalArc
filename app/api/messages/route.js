@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import { readMessages, saveMessage } from "@/lib/messages-store";
+import { getActiveEsportsMarket } from "@/lib/active-market";
+import { parseSignalMessage } from "@/lib/signal-parser";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -58,12 +60,29 @@ export async function POST(request) {
       return NextResponse.json({ error: result.error }, { status: 400 });
     }
 
-    const record = await saveMessage(result.data);
+    const activeMarket = await getActiveEsportsMarket();
+    const marketQuestion = activeMarket.marketId === result.data.market_id ? activeMarket.question : "";
+    const yesOutcome = activeMarket.marketId === result.data.market_id ? activeMarket.outcomes?.yes : "";
+    const noOutcome = activeMarket.marketId === result.data.market_id ? activeMarket.outcomes?.no : "";
+
+    const signal_parse = await parseSignalMessage({
+      marketId: result.data.market_id,
+      message: result.data.message,
+      marketQuestion,
+      yesOutcome,
+      noOutcome,
+    });
+
+    const record = await saveMessage({
+      ...result.data,
+      signal_parse,
+    });
 
     return NextResponse.json(
       {
         ok: true,
         message: "Message saved.",
+        signal_parse,
         data: record,
       },
       { status: 201 },
