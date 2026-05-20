@@ -12,10 +12,13 @@ export async function GET(request) {
 
     return NextResponse.json({
       market_id: market.marketId || market.id,
+      event_id: market.eventId || market.marketId || market.id,
       market_slug: market.slug || "",
       question: market.question,
       yes_outcome: market.outcomes?.yes || "",
       no_outcome: market.outcomes?.no || "",
+      yes_price: market.prices?.yes ?? null,
+      no_price: market.prices?.no ?? null,
       source_event: market.competition || market.rawQuestion || market.question,
       source_url: market.sourceUrl || "",
       status: market.status,

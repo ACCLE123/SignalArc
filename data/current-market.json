@@ -1,0 +1,32 @@
+{
+  "id": "1987056",
+  "marketId": "1987056",
+  "eventId": "1987056",
+  "question": "Will JD Gaming beat Anyone's Legend?",
+  "description": "LoL: JD Gaming vs Anyone's Legend (BO5) - Esports World Cup China Qualifier Phase 2. The primary market tracks the match winner. YES means JD Gaming wins. NO means Anyone's Legend wins.",
+  "status": "Open",
+  "active": true,
+  "closed": false,
+  "acceptingOrders": true,
+  "outcomes": {
+    "yes": "JD Gaming wins",
+    "no": "Anyone's Legend wins"
+  },
+  "prices": {
+    "yes": 0.505,
+    "no": 0.495
+  },
+  "source": "polymarket",
+  "category": "esports",
+  "competition": "LoL: JD Gaming vs Anyone's Legend (BO5) - Esports World Cup China Qualifier Phase 2",
+  "sourceUrl": "https://polymarket.com/event/lol-jdg-al-2026-05-21",
+  "liquidity": 182325.3184,
+  "volume24hr": 21986.44348,
+  "startDate": "2026-05-21T09:00:00Z",
+  "endDate": "2026-05-21T15:00:00Z",
+  "resolutionSource": "https://gol.gg/esports/home",
+  "resolutionStatus": "[]",
+  "rawQuestion": "LoL: JD Gaming vs Anyone's Legend (BO5) - Esports World Cup China Qualifier Phase 2",
+  "slug": "lol-jdg-al-2026-05-21",
+  "updatedAt": "2026-05-20T11:57:58.214156Z"
+}

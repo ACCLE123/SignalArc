@@ -1,0 +1,60 @@
+[
+  {
+    "id": "0f01e9be-a362-43c2-8c39-1d47bcb20b07",
+    "market_id": "1987056",
+    "event_id": "1987056",
+    "question": "Will JD Gaming beat Anyone's Legend?",
+    "side": "YES",
+    "status": "open",
+    "execution_mode": "paper-with-live-adapter-placeholder",
+    "live_trade_enabled": false,
+    "amount_usdc": 5.05,
+    "entry_price": 0.505,
+    "shares": 10,
+    "yes_score": 5.68,
+    "no_score": 4.32,
+    "opened_at": "2026-05-20T12:11:23.051Z",
+    "closed_at": null,
+    "exit_price": null,
+    "gross_value_usdc": null,
+    "profit_usdc": null,
+    "reward_pool_usdc": null,
+    "platform_pool_usdc": null,
+    "external_order_id": null,
+    "exit_reason": null,
+    "required_records": 10,
+    "used_message_ids": [
+      "fd1d00e8-2404-4d83-9f6c-ebbbafe0e0ea",
+      "4d1800d9-73df-43fe-a422-120b0692d844",
+      "ea39a470-8910-4385-b5bb-500549437c8b",
+      "2ef42919-dc9f-4962-95de-3c6ff3db418f",
+      "a0fbe9e3-bff8-452f-b62b-f168f0b753b4",
+      "47720b64-1222-42eb-bc2b-821dbce2450e",
+      "b401a400-cf54-445a-90f6-a934fd1316dc",
+      "41dd7094-6067-4dd2-a595-489a4932de94",
+      "22c6fc13-f5fd-464e-b5bc-fe8724094f10",
+      "12013529-67e4-4f73-adfd-425d2b22193b"
+    ],
+    "participants": [
+      {
+        "wallet_address": "0xab7014a8dd8a717f0aa2f262ab2ee29af2e9c01a",
+        "agent_name": "agent-01",
+        "message_ids": [
+          "fd1d00e8-2404-4d83-9f6c-ebbbafe0e0ea",
+          "4d1800d9-73df-43fe-a422-120b0692d844",
+          "ea39a470-8910-4385-b5bb-500549437c8b",
+          "2ef42919-dc9f-4962-95de-3c6ff3db418f",
+          "a0fbe9e3-bff8-452f-b62b-f168f0b753b4",
+          "47720b64-1222-42eb-bc2b-821dbce2450e",
+          "b401a400-cf54-445a-90f6-a934fd1316dc",
+          "41dd7094-6067-4dd2-a595-489a4932de94",
+          "22c6fc13-f5fd-464e-b5bc-fe8724094f10",
+          "12013529-67e4-4f73-adfd-425d2b22193b"
+        ],
+        "contribution_score": 5.68,
+        "reward_amount_usdc": 0
+      }
+    ],
+    "note": "Live Polymarket entry adapter is not connected yet. This record preserves the interface and uses the current reference price."
+  }
+]

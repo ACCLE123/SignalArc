@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { readMessages, saveMessage } from "@/lib/messages-store";
-import { getActiveEsportsMarket } from "@/lib/active-market";
+import { getMarketSnapshotById } from "@/lib/active-market";
 import { parseSignalMessage } from "@/lib/signal-parser";
+import { evaluateTradeForMarket } from "@/lib/trade-engine";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -60,29 +61,50 @@ export async function POST(request) {
       return NextResponse.json({ error: result.error }, { status: 400 });
     }
 
-    const activeMarket = await getActiveEsportsMarket();
-    const marketQuestion = activeMarket.marketId === result.data.market_id ? activeMarket.question : "";
-    const yesOutcome = activeMarket.marketId === result.data.market_id ? activeMarket.outcomes?.yes : "";
-    const noOutcome = activeMarket.marketId === result.data.market_id ? activeMarket.outcomes?.no : "";
+    let marketSnapshot = null;
+
+    try {
+      marketSnapshot = await getMarketSnapshotById(result.data.market_id);
+    } catch {
+      marketSnapshot = null;
+    }
 
     const signal_parse = await parseSignalMessage({
       marketId: result.data.market_id,
       message: result.data.message,
-      marketQuestion,
-      yesOutcome,
-      noOutcome,
+      marketQuestion: marketSnapshot?.question || "",
+      yesOutcome: marketSnapshot?.outcomes?.yes || "",
+      noOutcome: marketSnapshot?.outcomes?.no || "",
     });
 
     const record = await saveMessage({
       ...result.data,
+      event_id: marketSnapshot?.eventId || null,
       signal_parse,
     });
+
+    let tradeEvaluation = {
+      summary: null,
+    };
+
+    try {
+      tradeEvaluation = await evaluateTradeForMarket({
+        marketId: result.data.market_id,
+        eventId: marketSnapshot?.eventId || "",
+        marketSnapshot,
+      });
+    } catch {
+      tradeEvaluation = {
+        summary: null,
+      };
+    }
 
     return NextResponse.json(
       {
         ok: true,
         message: "Message saved.",
         signal_parse,
+        trade_summary: tradeEvaluation.summary,
         data: record,
       },
       { status: 201 },

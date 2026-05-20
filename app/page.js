@@ -1,5 +1,8 @@
 import Link from "next/link";
 import { getActiveEsportsMarket } from "@/lib/active-market";
+import { getTradeSummaryForMarket } from "@/lib/trade-engine";
+
+export const dynamic = "force-dynamic";
 
 const features = [
   {
@@ -26,6 +29,11 @@ function formatUsd(value) {
 
 export default async function HomePage() {
   const market = await getActiveEsportsMarket();
+  const tradeSummary = await getTradeSummaryForMarket({
+    marketId: market.marketId || market.id,
+    eventId: market.eventId || "",
+    marketSnapshot: market,
+  });
   const sourceLabel = market.source === "polymarket" ? `Live Polymarket ${market.category}` : "Fallback market";
 
   return (
@@ -122,6 +130,62 @@ export default async function HomePage() {
                     </a>
                   </p>
                 ) : null}
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-[var(--line)] bg-[var(--surface-strong)] p-4">
+              <div className="flex items-center justify-between gap-3">
+                <p className="section-label">Trade status</p>
+                <span className={`status-chip ${tradeSummary.has_traded ? "status-chip-live" : ""}`}>{tradeSummary.trade_status}</span>
+              </div>
+
+              <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                <div>
+                  <p className="section-label">Signal progress</p>
+                  <p className="mt-2 text-base font-semibold text-[var(--ink)]">
+                    {tradeSummary.valid_records} / {tradeSummary.required_records}
+                  </p>
+                </div>
+                <div>
+                  <p className="section-label">Has traded</p>
+                  <p className="mt-2 text-base font-semibold text-[var(--ink)]">{tradeSummary.has_traded ? "Yes" : "No"}</p>
+                </div>
+                <div>
+                  <p className="section-label">Decision</p>
+                  <p className="mt-2 text-base font-semibold text-[var(--ink)]">{tradeSummary.decision_side || "Waiting"}</p>
+                </div>
+                <div>
+                  <p className="section-label">Trade size</p>
+                  <p className="mt-2 text-base font-semibold text-[var(--ink)]">{tradeSummary.trade_size_shares} shares</p>
+                </div>
+                {tradeSummary.amount_usdc !== null ? (
+                  <div>
+                    <p className="section-label">Entry notional</p>
+                    <p className="mt-2 text-base font-semibold text-[var(--ink)]">{tradeSummary.amount_usdc} USDC</p>
+                  </div>
+                ) : null}
+                {tradeSummary.entry_price !== null ? (
+                  <div>
+                    <p className="section-label">Entry price</p>
+                    <p className="mt-2 text-base font-semibold text-[var(--ink)]">{tradeSummary.entry_price}</p>
+                  </div>
+                ) : null}
+                {tradeSummary.profit_usdc !== null ? (
+                  <div>
+                    <p className="section-label">PnL</p>
+                    <p className="mt-2 text-base font-semibold text-[var(--ink)]">
+                      {tradeSummary.profit_usdc >= 0 ? "+" : ""}
+                      {tradeSummary.profit_usdc} USDC
+                    </p>
+                  </div>
+                ) : null}
+              </div>
+
+              <div className="mt-4 space-y-2 text-sm leading-7 text-[var(--muted)]">
+                <p>Signals need {tradeSummary.required_records} parsed records before SignalArc opens one position for this market.</p>
+                <p>Each market opens one position of {tradeSummary.trade_size_shares} shares at the current market price.</p>
+                {!tradeSummary.has_traded ? <p>{tradeSummary.remaining_records} more parsed records are needed before the first trade can trigger.</p> : null}
+                {tradeSummary.reward_pool_usdc !== null ? <p>Reward pool after settlement: {tradeSummary.reward_pool_usdc} USDC.</p> : null}
               </div>
             </div>
           </aside>
