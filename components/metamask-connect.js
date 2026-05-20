@@ -16,15 +16,11 @@ export default function MetaMaskConnect() {
 
   return (
     <div className="flex flex-col items-stretch gap-2 sm:items-end">
-      <button
-        type="button"
-        onClick={connect}
-        className="inline-flex items-center justify-center rounded-full bg-[var(--ink)] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[var(--accent)]"
-      >
+      <button type="button" onClick={connect} className="primary-button min-w-[12rem]">
         {status === "connecting" ? "Connecting..." : isConnected ? "MetaMask Connected" : "Connect MetaMask"}
       </button>
 
-      <div className="text-right text-xs text-[var(--muted)]">
+      <div className="text-right text-xs leading-6 text-[var(--muted)]">
         {isConnected ? (
           <>
             <p>{shortenAddress(address)}</p>

@@ -26,13 +26,14 @@ function formatUsd(value) {
 
 export default async function HomePage() {
   const market = await getActiveEsportsMarket();
+  const sourceLabel = market.source === "polymarket" ? `Live Polymarket ${market.category}` : "Fallback market";
 
   return (
     <div className="space-y-8">
       <section className="panel overflow-hidden px-6 py-8 sm:px-8 sm:py-10">
         <div className="grid gap-8 xl:grid-cols-[1.2fr_0.8fr] xl:items-start">
           <div className="space-y-6">
-            <span className="status-chip status-chip-live">Signal intake on Arc</span>
+            <span className="status-chip status-chip-live">Live signal layer</span>
             <div className="space-y-4">
               <h1 className="hero-copy">Capture agent edge before it becomes a trade.</h1>
               <p className="hero-text">
@@ -72,6 +73,11 @@ export default async function HomePage() {
               <span className="status-chip status-chip-live">Open</span>
             </div>
 
+            <div className="flex flex-wrap gap-2">
+              <span className="status-chip">{sourceLabel}</span>
+              {market.competition ? <span className="status-chip">{market.competition}</span> : null}
+            </div>
+
             <h2 className="max-w-lg text-3xl font-semibold leading-tight tracking-[-0.04em] text-[var(--ink)]">
               {market.question}
             </h2>
@@ -93,12 +99,22 @@ export default async function HomePage() {
               </div>
             </div>
 
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="rounded-2xl border border-[var(--line)] bg-[var(--surface-strong)] p-4">
+                <p className="section-label">Liquidity</p>
+                <p className="mt-3 text-2xl font-semibold tracking-[-0.03em] text-[var(--ink)]">{formatUsd(market.liquidity)}</p>
+              </div>
+              <div className="rounded-2xl border border-[var(--line)] bg-[var(--surface-strong)] p-4">
+                <p className="section-label">24h volume</p>
+                <p className="mt-3 text-2xl font-semibold tracking-[-0.03em] text-[var(--ink)]">{formatUsd(market.volume24hr)}</p>
+              </div>
+            </div>
+
             <div className="rounded-2xl border border-[var(--line)] bg-[var(--surface-strong)] p-4">
               <p className="section-label">Live source</p>
               <div className="mt-3 space-y-2 text-sm leading-7 text-[var(--muted)]">
                 <p>{market.source === "polymarket" ? `Pulled from Polymarket ${market.category}.` : "Fallback market in use."}</p>
-                <p>Liquidity: {formatUsd(market.liquidity)}</p>
-                <p>24h volume: {formatUsd(market.volume24hr)}</p>
+                <p>Designed to feel like a focused market board rather than a dashboard.</p>
                 {market.sourceUrl ? (
                   <p>
                     <a href={market.sourceUrl} target="_blank" rel="noreferrer" className="text-[var(--accent)] hover:text-[var(--accent-strong)]">

@@ -50,7 +50,7 @@ export default function MetaMaskStatusCard() {
       <button
         type="button"
         onClick={connect}
-        className="inline-flex w-full items-center justify-center rounded-2xl bg-[var(--ink)] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[var(--accent)]"
+        className="primary-button w-full"
       >
         {status === "connecting" ? "Connecting..." : isConnected ? "Reconnect MetaMask" : "Connect MetaMask"}
       </button>

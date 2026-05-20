@@ -63,7 +63,7 @@ export default function AgentSetupPage() {
             </div>
 
             {!isConnected ? (
-              <div className="rounded-2xl border border-[var(--signal)]/20 bg-[#fff1f2] px-4 py-4 text-sm leading-7 text-[var(--signal)]">
+              <div className="rounded-2xl border border-[var(--signal)]/25 bg-[rgba(87,20,36,0.72)] px-4 py-4 text-sm leading-7 text-[var(--signal)]">
                 Connect MetaMask before continuing. The wallet address is required for the final agent skill.
               </div>
             ) : !isOnArc ? (

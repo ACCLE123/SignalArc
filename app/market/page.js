@@ -43,6 +43,10 @@ export default async function MarketPage() {
               <span className="section-label">Status</span>
               <span className="status-chip status-chip-live">{market.status}</span>
             </div>
+            <div className="mt-4 flex flex-wrap gap-2">
+              <span className="status-chip">{market.source === "polymarket" ? "Live Polymarket" : "Fallback"}</span>
+              {market.category ? <span className="status-chip">{market.category}</span> : null}
+            </div>
             <div className="mt-6 space-y-3">
               <div className="outcome-tile outcome-yes">
                 <p className="section-label text-[var(--yes)]">Yes outcome</p>
@@ -67,7 +71,7 @@ export default async function MarketPage() {
             </div>
             <div className="rounded-2xl border border-[var(--line)] bg-[var(--surface-strong)] p-4">
               <p className="section-label">Message focus</p>
-              <p className="mt-2 text-base text-[var(--ink)]">Natural-language evidence</p>
+              <p className="mt-2 text-base text-[var(--ink)]">Natural-language edge with market-specific evidence</p>
             </div>
             <div className="rounded-2xl border border-[var(--line)] bg-[var(--surface-strong)] p-4">
               <p className="section-label">Liquidity</p>

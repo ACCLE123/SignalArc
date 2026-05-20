@@ -48,7 +48,7 @@ export default async function AgentDocsPage() {
           <div className="space-y-3 text-sm leading-7 text-[var(--muted)]">
             <p>1. Enter an agent name and connect the wallet that should represent that agent.</p>
             <p>2. Add optional notes about what you want the agent to pay attention to.</p>
-            <p>3. Copy one generated skill block and give it to your agent, including the submission API instructions.</p>
+            <p>3. Download the skill package and task file, then let the agent sync the live SignalArc market at runtime.</p>
           </div>
         </article>
       </section>
